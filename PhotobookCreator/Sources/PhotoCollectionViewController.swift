@@ -21,25 +21,8 @@ class PhotoCollectionViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        let fileManager = FileManager.default
-        let bundle = Bundle.main
-        
-        guard let samplePhotosFolderPath = bundle.resourcePath?.appending("/SamplePhotos/") else { return }
-        guard let photoPaths = try? fileManager.contentsOfDirectory(atPath: samplePhotosFolderPath) else { return }
-        
-        photos = photoPaths.flatMap { UIImage(contentsOfFile: samplePhotosFolderPath.appending($0)) }
-        
-        // Setup Activity Indicator
-        activityIndicator.hidesWhenStopped = true
-        let barButtonItem = UIBarButtonItem(customView: activityIndicator)
-        
-        // Setup Edit Button
-        let editButon = editButtonItem
-        editButon.target = self
-        editButon.action = #selector(editPhotos(sender:))
-        
-        navigationItem.rightBarButtonItems = [editButon, barButtonItem]
+        retrieveSamplePhotos()
+        setupBarButtonItems()
     }
     
     // MARK: - Generate Photo Book
@@ -83,6 +66,33 @@ class PhotoCollectionViewController: UIViewController {
                 completion(photobookURL)
             }
         }
+    }
+    
+    // MARK: - Setup
+    
+    func setupBarButtonItems() {
+        
+        // Setup Activity Indicator
+        activityIndicator.hidesWhenStopped = true
+        let barButtonItem = UIBarButtonItem(customView: activityIndicator)
+        
+        // Setup Edit Button
+        let editButon = editButtonItem
+        editButon.target = self
+        editButon.action = #selector(editPhotos(sender:))
+        
+        navigationItem.rightBarButtonItems = [editButon, barButtonItem]
+    }
+    
+    func retrieveSamplePhotos() {
+        
+        let fileManager = FileManager.default
+        let bundle = Bundle.main
+        
+        guard let samplePhotosFolderPath = bundle.resourcePath?.appending("/SamplePhotos/") else { return }
+        guard let photoPaths = try? fileManager.contentsOfDirectory(atPath: samplePhotosFolderPath) else { return }
+        
+        photos = photoPaths.flatMap { UIImage(contentsOfFile: samplePhotosFolderPath.appending($0)) }
     }
     
     // MARK: - Add Photo
