@@ -30,10 +30,6 @@ class PhotoBookBuilder {
         // Start PDF Context
         UIGraphicsBeginPDFContextToFile(outputPath, .zero, nil)
         
-        // Write to data
-        //var data = NSMutableData()
-        //UIGraphicsBeginPDFContextToData(data, CGRectZero, nil)
-        
         photos.forEach { image in
             
             let pageFrame = CGRect(x: 0, y: 0, width: image.size.width, height: image.size.height)
