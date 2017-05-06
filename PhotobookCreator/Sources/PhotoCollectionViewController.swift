@@ -2,7 +2,7 @@
 //  PhotoCollectionViewController.swift.swift
 //  PhotobookCreator
 //
-//  Created by Keith Moon [Contractor] on 5/4/17.
+//  Created by Keith Moon on 5/4/17.
 //  Copyright © 2017 Keith Moon. All rights reserved.
 //
 
