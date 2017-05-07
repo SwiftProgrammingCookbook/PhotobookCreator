@@ -10,7 +10,6 @@ import UIKit
 import QuartzCore
 import AVFoundation
 import Photos
-import Dispatch
 
 class PhotoCollectionViewController: UIViewController {
 
@@ -30,42 +29,29 @@ class PhotoCollectionViewController: UIViewController {
     @IBAction func generateButtonPressed(sender: UIBarButtonItem) {
         
         activityIndicator.startAnimating()
-        
-        generatePhotoBook(with: photos) { [activityIndicator] photobookURL in
-            
-            activityIndicator.stopAnimating()
-            
-            let previewController = UIDocumentInteractionController(url: photobookURL)
-            previewController.delegate = self
-            previewController.presentPreview(animated: true)
-        }
+        generatePhotoBook(with: photos)
+        activityIndicator.stopAnimating()
     }
     
-    let processingQueue = DispatchQueue(label: "Photo processing queue", attributes: .concurrent)
-    
-    var processedPhotos = [UIImage]()
-    
-    func generatePhotoBook(with photos: [UIImage], completion: @escaping (URL) -> Void) {
+    func generatePhotoBook(with photos: [UIImage]) {
         
-        processingQueue.async {
-            
-            let resizer = PhotoResizer()
-            let builder = PhotoBookBuilder()
-            
-            // Get smallest common size 
-            let size = resizer.smallestCommonSize(for: photos)
-            
-            // Scale down (can take a while)
-            var photosForBook = resizer.scaleWithAspectFill(photos, to: size)
-            // Crop (can take a while)
-            photosForBook = resizer.centerCrop(photosForBook, to: size)
-            // Generate PDF (can take a while)
-            let photobookURL = builder.buildPhotobook(with: photosForBook)
-            
-            DispatchQueue.main.async {
-                completion(photobookURL)
-            }
-        }
+        let resizer = PhotoResizer()
+        let builder = PhotoBookBuilder()
+        
+        // Get smallest common size
+        let size = resizer.smallestCommonSize(for: photos)
+        
+        // Scale down (can take a while)
+        var photosForBook = resizer.scaleWithAspectFill(photos, to: size)
+        // Crop (can take a while)
+        photosForBook = resizer.centerCrop(photosForBook, to: size)
+        // Generate PDF (can take a while)
+        let photobookURL = builder.buildPhotobook(with: photosForBook)
+        
+        // Display preview
+        let previewController = UIDocumentInteractionController(url: photobookURL)
+        previewController.delegate = self
+        previewController.presentPreview(animated: true)
     }
     
     // MARK: - Setup
