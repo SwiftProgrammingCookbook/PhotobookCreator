@@ -43,22 +43,44 @@ class PhotoCollectionViewController: UIViewController {
     
     let processingQueue = DispatchQueue(label: "Photo processing queue", attributes: .concurrent)
     
+    var processedPhotos = [UIImage]()
+    
     func generatePhotoBook(with photos: [UIImage], completion: @escaping (URL) -> Void) {
         
-        processingQueue.async {
+        let resizer = PhotoResizer()
+        let builder = PhotoBookBuilder()
+        
+        // Get smallest common size
+        let size = resizer.smallestCommonSize(for: photos)
+        
+        processedPhotos = photos
+        
+        let group = DispatchGroup()
+        
+        for (index, photo) in photos.enumerated() {
             
-            let resizer = PhotoResizer()
-            let builder = PhotoBookBuilder()
+            group.enter()
             
-            // Get smallest common size 
-            let size = resizer.smallestCommonSize(for: photos)
+            processingQueue.async { [weak self] in
+                
+                // Scale down (can take a while)
+                var photosForBook = resizer.scaleWithAspectFill([photo], to: size)
+                // Crop (can take a while)
+                photosForBook = resizer.centerCrop([photo], to: size)
+                
+                // Replace original photo with processed photo
+                self?.processedPhotos[index] = photosForBook[0]
+                
+                group.leave()
+            }
+        }
+        
+        group.notify(queue: processingQueue) { [weak self] in
             
-            // Scale down (can take a while)
-            var photosForBook = resizer.scaleWithAspectFill(photos, to: size)
-            // Crop (can take a while)
-            photosForBook = resizer.centerCrop(photosForBook, to: size)
+            guard let photos = self?.processedPhotos else { return }
+            
             // Generate PDF (can take a while)
-            let photobookURL = builder.buildPhotobook(with: photosForBook)
+            let photobookURL = builder.buildPhotobook(with: photos)
             
             DispatchQueue.main.async {
                 completion(photobookURL)
