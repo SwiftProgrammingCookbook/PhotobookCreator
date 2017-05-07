@@ -41,7 +41,7 @@ class PhotoCollectionViewController: UIViewController {
         }
     }
     
-    let processingQueue = DispatchQueue(label: "Photo processing queue")
+    let processingQueue = DispatchQueue(label: "Photo processing queue", attributes: .concurrent)
     
     func generatePhotoBook(with photos: [UIImage], completion: @escaping (URL) -> Void) {
         
