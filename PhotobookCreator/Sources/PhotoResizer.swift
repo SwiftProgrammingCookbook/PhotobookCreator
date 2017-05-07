@@ -13,23 +13,32 @@ class PhotoResizer {
     
     let context = CIContext(options: [kCIContextUseSoftwareRenderer: false])
     
-    func scaleToSmallest(of photos: [UIImage]) -> [UIImage] {
+    func smallestCommonSize(for photos: [UIImage]) -> CGSize {
         
-        var smallestHeight = CGFloat.greatestFiniteMagnitude
-        var smallestWidth = CGFloat.greatestFiniteMagnitude
+        var smallestRect: CGRect? = nil
         
         photos.forEach { photo in
-            smallestHeight = min(smallestHeight, photo.size.height)
-            smallestWidth = min(smallestWidth, photo.size.width)
+            
+            let photoRect = CGRect(origin: .zero, size: photo.size)
+            
+            if let rect = smallestRect {
+                smallestRect = rect.intersection(photoRect)
+            } else {
+                smallestRect = photoRect
+            }
         }
+        return smallestRect?.size ?? .zero
+    }
+    
+    func scaleWithAspectFill(_ photos: [UIImage], to size: CGSize) -> [UIImage] {
         
         let scaledImages: [UIImage] = photos.flatMap { photo in
             
             guard let cgImage = photo.cgImage else { return nil }
             
-            // Calculate scale needed to fit the closest smallest dimension
-            let heightScale = smallestHeight / photo.size.height
-            let weightScale = smallestWidth / photo.size.width
+            // Calculate scale needed to fit the size dimension
+            let heightScale = size.height / photo.size.height
+            let weightScale = size.width / photo.size.width
             let heightScaleDifference = abs(1 - heightScale)
             let weightScaleDifference = abs(1 - weightScale)
             
@@ -51,24 +60,16 @@ class PhotoResizer {
         return scaledImages
     }
     
-    func cropToSmallest(of photos: [UIImage]) -> [UIImage] {
-        
-        var smallestHeight = CGFloat.greatestFiniteMagnitude
-        var smallestWidth = CGFloat.greatestFiniteMagnitude
-        
-        photos.forEach { photo in
-            smallestHeight = min(smallestHeight, photo.size.height)
-            smallestWidth = min(smallestWidth, photo.size.width)
-        }
+    func centerCrop(_ photos: [UIImage], to size: CGSize) -> [UIImage] {
         
         let croppedImages: [UIImage] = photos.flatMap { photo in
             
             guard let cgImage = photo.cgImage else { return nil }
             
             // Calculate center crop rect
-            let x = (photo.size.width - smallestWidth) / 2
-            let y = (photo.size.height - smallestHeight) / 2
-            let croppingRect = CGRect(x: x, y: y, width: smallestWidth, height: smallestHeight)
+            let x = (photo.size.width - size.width) / 2
+            let y = (photo.size.height - size.height) / 2
+            let croppingRect = CGRect(x: x, y: y, width: size.width, height: size.height)
             
             let croppedImage = CIImage(cgImage: cgImage).cropping(to: croppingRect)
             

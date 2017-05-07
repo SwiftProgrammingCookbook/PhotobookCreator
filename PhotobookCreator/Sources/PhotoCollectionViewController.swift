@@ -41,26 +41,26 @@ class PhotoCollectionViewController: UIViewController {
         }
     }
     
-    let processingQueue = DispatchQueue(label: "Photo processing queue")
+    let processingQueue = DispatchQueue(label: "Photo processing queue", attributes: .concurrent)
+    
+    var processedPhotos = [UIImage]()
     
     func generatePhotoBook(with photos: [UIImage], completion: @escaping (URL) -> Void) {
         
         processingQueue.async {
             
-            let now = Date()
-            
             let resizer = PhotoResizer()
             let builder = PhotoBookBuilder()
             
+            // Get smallest common size 
+            let size = resizer.smallestCommonSize(for: photos)
+            
             // Scale down (can take a while)
-            var photosForBook = resizer.scaleToSmallest(of: photos)
+            var photosForBook = resizer.scaleWithAspectFill(photos, to: size)
             // Crop (can take a while)
-            photosForBook = resizer.cropToSmallest(of: photosForBook)
+            photosForBook = resizer.centerCrop(photosForBook, to: size)
             // Generate PDF (can take a while)
             let photobookURL = builder.buildPhotobook(with: photosForBook)
-            
-            let duration = now.timeIntervalSinceNow
-            print("Duration: \(duration)")
             
             DispatchQueue.main.async {
                 completion(photobookURL)
