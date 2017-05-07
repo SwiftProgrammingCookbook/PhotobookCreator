@@ -14,6 +14,41 @@ import Dispatch
 
 class PhotoCollectionViewController: UIViewController {
 
+    class ProcessedPhotosStore {
+        
+        private var photos: [UIImage]
+        private var accessQueue = DispatchQueue(label: "Access Queue", attributes: .concurrent)
+        
+        init(photos: [UIImage]) {
+            self.photos = photos
+        }
+        
+        func getAllPhotos() -> [UIImage] {
+            
+            var allPhotos: [UIImage]!
+            accessQueue.sync {
+                allPhotos = photos
+            }
+            return allPhotos
+        }
+        
+        func getPhoto(at index: Int) -> UIImage {
+            
+            var photo: UIImage!
+            accessQueue.sync {
+                photo = photos[index]
+            }
+            return photo
+        }
+        
+        func setPhoto(_ photo: UIImage, at index: Int) {
+            
+            accessQueue.async(flags: .barrier) { [weak self] in
+                self?.photos[index] = photo
+            }
+        }
+    }
+    
     @IBOutlet var tableView: UITableView!
     var activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
     
@@ -43,7 +78,7 @@ class PhotoCollectionViewController: UIViewController {
     
     let processingQueue = DispatchQueue(label: "Photo processing queue", attributes: .concurrent)
     
-    var processedPhotos = [UIImage]()
+    var processedPhotoStore: ProcessedPhotosStore?
     
     func generatePhotoBook(with photos: [UIImage], completion: @escaping (URL) -> Void) {
         
@@ -53,7 +88,8 @@ class PhotoCollectionViewController: UIViewController {
         // Get smallest common size
         let size = resizer.smallestCommonSize(for: photos)
         
-        processedPhotos = photos
+        let processedPhotos = ProcessedPhotosStore(photos: photos)
+        processedPhotoStore = processedPhotos
         
         let group = DispatchGroup()
         
@@ -61,7 +97,7 @@ class PhotoCollectionViewController: UIViewController {
             
             group.enter()
             
-            processingQueue.async { [weak self] in
+            processingQueue.async { [processedPhotos] in
                 
                 // Scale down (can take a while)
                 var photosForBook = resizer.scaleWithAspectFill([photo], to: size)
@@ -69,7 +105,7 @@ class PhotoCollectionViewController: UIViewController {
                 photosForBook = resizer.centerCrop([photo], to: size)
                 
                 // Replace original photo with processed photo
-                self?.processedPhotos[index] = photosForBook[0]
+                processedPhotos.setPhoto(photosForBook[0], at: index)
                 
                 group.leave()
             }
@@ -77,7 +113,7 @@ class PhotoCollectionViewController: UIViewController {
         
         group.notify(queue: processingQueue) { [weak self] in
             
-            guard let photos = self?.processedPhotos else { return }
+            guard let photos = self?.processedPhotoStore?.getAllPhotos() else { return }
             
             // Generate PDF (can take a while)
             let photobookURL = builder.buildPhotobook(with: photos)
