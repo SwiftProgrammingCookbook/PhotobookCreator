@@ -43,8 +43,6 @@ class PhotoCollectionViewController: UIViewController {
     
     let processingQueue = DispatchQueue(label: "Photo processing queue", attributes: .concurrent)
     
-    var processedPhotos = [UIImage]()
-    
     func generatePhotoBook(with photos: [UIImage], completion: @escaping (URL) -> Void) {
         
         let resizer = PhotoResizer()
@@ -53,7 +51,7 @@ class PhotoCollectionViewController: UIViewController {
         // Get smallest common size
         let size = resizer.smallestCommonSize(for: photos)
         
-        processedPhotos = photos
+        let processedPhotos = NSMutableArray(array: photos)
         
         let group = DispatchGroup()
         
@@ -61,7 +59,7 @@ class PhotoCollectionViewController: UIViewController {
             
             group.enter()
             
-            processingQueue.async { [weak self] in
+            processingQueue.async { [processedPhotos] in
                 
                 // Scale down (can take a while)
                 var photosForBook = resizer.scaleWithAspectFill([photo], to: size)
@@ -69,15 +67,15 @@ class PhotoCollectionViewController: UIViewController {
                 photosForBook = resizer.centerCrop([photo], to: size)
                 
                 // Replace original photo with processed photo
-                self?.processedPhotos[index] = photosForBook[0]
+                processedPhotos[index] = photosForBook[0]
                 
                 group.leave()
             }
         }
         
-        group.notify(queue: processingQueue) { [weak self] in
+        group.notify(queue: processingQueue) { [processedPhotos] in
             
-            guard let photos = self?.processedPhotos else { return }
+            guard let photos = processedPhotos as? [UIImage] else { return }
             
             // Generate PDF (can take a while)
             let photobookURL = builder.buildPhotobook(with: photos)
