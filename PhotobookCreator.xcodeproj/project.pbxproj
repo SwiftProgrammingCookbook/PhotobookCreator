@@ -7,9 +7,11 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		2F3D4C2D1EC3706E00C13112 /* PhotoResizeOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F3D4C2C1EC3706E00C13112 /* PhotoResizeOperation.swift */; };
 		2F7756AB1EBBA9080076D86C /* PhotoBookBuilder.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7756AA1EBBA9080076D86C /* PhotoBookBuilder.swift */; };
 		2F7756AD1EBBEA740076D86C /* PhotoResizer.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7756AC1EBBEA740076D86C /* PhotoResizer.swift */; };
 		2F7756AF1EBD46680076D86C /* PhotoCollectionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2F7756AE1EBD46680076D86C /* PhotoCollectionViewController.swift */; };
+		2FB0AED51EC41370000C82F6 /* GeneratePhotoBookOperation.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2FB0AED41EC41370000C82F6 /* GeneratePhotoBookOperation.swift */; };
 		B12322431EBB143600EC1172 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = B12322421EBB143600EC1172 /* AppDelegate.swift */; };
 		B12322481EBB143600EC1172 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = B12322461EBB143600EC1172 /* Main.storyboard */; };
 		B123224A1EBB143600EC1172 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = B12322491EBB143600EC1172 /* Assets.xcassets */; };
@@ -18,9 +20,11 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		2F3D4C2C1EC3706E00C13112 /* PhotoResizeOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PhotoResizeOperation.swift; path = Sources/PhotoResizeOperation.swift; sourceTree = "<group>"; };
 		2F7756AA1EBBA9080076D86C /* PhotoBookBuilder.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PhotoBookBuilder.swift; path = Sources/PhotoBookBuilder.swift; sourceTree = "<group>"; };
 		2F7756AC1EBBEA740076D86C /* PhotoResizer.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PhotoResizer.swift; path = Sources/PhotoResizer.swift; sourceTree = "<group>"; };
 		2F7756AE1EBD46680076D86C /* PhotoCollectionViewController.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = PhotoCollectionViewController.swift; path = Sources/PhotoCollectionViewController.swift; sourceTree = "<group>"; };
+		2FB0AED41EC41370000C82F6 /* GeneratePhotoBookOperation.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; name = GeneratePhotoBookOperation.swift; path = Sources/GeneratePhotoBookOperation.swift; sourceTree = "<group>"; };
 		B123223F1EBB143600EC1172 /* PhotobookCreator.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = PhotobookCreator.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		B12322421EBB143600EC1172 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		B12322471EBB143600EC1172 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/Main.storyboard; sourceTree = "<group>"; };
@@ -63,6 +67,8 @@
 				2F7756AE1EBD46680076D86C /* PhotoCollectionViewController.swift */,
 				2F7756AC1EBBEA740076D86C /* PhotoResizer.swift */,
 				2F7756AA1EBBA9080076D86C /* PhotoBookBuilder.swift */,
+				2F3D4C2C1EC3706E00C13112 /* PhotoResizeOperation.swift */,
+				2FB0AED41EC41370000C82F6 /* GeneratePhotoBookOperation.swift */,
 				B12322541EBB14EC00EC1172 /* Resources */,
 				B12322421EBB143600EC1172 /* AppDelegate.swift */,
 				B12322461EBB143600EC1172 /* Main.storyboard */,
@@ -155,8 +161,10 @@
 			buildActionMask = 2147483647;
 			files = (
 				2F7756AB1EBBA9080076D86C /* PhotoBookBuilder.swift in Sources */,
+				2F3D4C2D1EC3706E00C13112 /* PhotoResizeOperation.swift in Sources */,
 				B12322431EBB143600EC1172 /* AppDelegate.swift in Sources */,
 				2F7756AF1EBD46680076D86C /* PhotoCollectionViewController.swift in Sources */,
+				2FB0AED51EC41370000C82F6 /* GeneratePhotoBookOperation.swift in Sources */,
 				2F7756AD1EBBEA740076D86C /* PhotoResizer.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

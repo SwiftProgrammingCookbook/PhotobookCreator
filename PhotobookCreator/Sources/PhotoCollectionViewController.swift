@@ -38,10 +38,12 @@ class PhotoCollectionViewController: UIViewController {
             let previewController = UIDocumentInteractionController(url: photobookURL)
             previewController.delegate = self
             previewController.presentPreview(animated: true)
+            
+            print("UI to be presented")
         }
     }
     
-    let processingQueue = DispatchQueue(label: "Photo processing queue", attributes: .concurrent)
+    let processingQueue = OperationQueue()
     
     func generatePhotoBook(with photos: [UIImage], completion: @escaping (URL) -> Void) {
         
@@ -53,37 +55,31 @@ class PhotoCollectionViewController: UIViewController {
         
         let processedPhotos = NSMutableArray(array: photos)
         
-        let group = DispatchGroup()
+        let generateBookOp = GeneratePhotoBookOperation(builder: builder, photos: processedPhotos)
         
-        for (index, photo) in photos.enumerated() {
+        for index in 0..<processedPhotos.count {
             
-            group.enter()
+            let resizeOp = PhotoResizeOperation(resizer: resizer,
+                                                size: size,
+                                                photos: processedPhotos,
+                                                photoIndex: index)
             
-            processingQueue.async { [processedPhotos] in
-                
-                // Scale down (can take a while)
-                var photosForBook = resizer.scaleWithAspectFill([photo], to: size)
-                // Crop (can take a while)
-                photosForBook = resizer.centerCrop([photo], to: size)
-                
-                // Replace original photo with processed photo
-                processedPhotos[index] = photosForBook[0]
-                
-                group.leave()
+            generateBookOp.addDependency(resizeOp)
+            processingQueue.addOperation(resizeOp)
+        }
+        
+        generateBookOp.completionBlock = { [weak generateBookOp] in
+            
+            guard let pbURL = generateBookOp?.photobookURL else {
+                return
+            }
+            
+            OperationQueue.main.addOperation {
+                completion(pbURL)
             }
         }
         
-        group.notify(queue: processingQueue) { [processedPhotos] in
-            
-            guard let photos = processedPhotos as? [UIImage] else { return }
-            
-            // Generate PDF (can take a while)
-            let photobookURL = builder.buildPhotobook(with: photos)
-            
-            DispatchQueue.main.async {
-                completion(photobookURL)
-            }
-        }
+        processingQueue.addOperation(generateBookOp)
     }
     
     // MARK: - Setup
