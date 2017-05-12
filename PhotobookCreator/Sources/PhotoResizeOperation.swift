@@ -23,9 +23,17 @@ class PhotoResizeOperation: Operation {
     }
     
     override func main() {
+        
+        // Check if operation has been cancelled
+        guard isCancelled == false else { return }
+        
         guard let photo = photos[photoIndex] as? UIImage else { return }
         // Scale down (can take a while)
         var photosForBook = resizer.scaleWithAspectFill([photo], to: size)
+        
+        // Check if operation has been cancelled
+        guard isCancelled == false else { return }
+        
         // Crop (can take a while)
         photosForBook = resizer.centerCrop(photosForBook, to: size)
         
