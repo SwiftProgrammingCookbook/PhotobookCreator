@@ -21,6 +21,9 @@ class GeneratePhotoBookOperation: Operation {
     
     override func main() {
         
+        // Check if operation has been cancelled
+        guard isCancelled == false else { return }
+        
         guard let photos = photos as? [UIImage] else { return }
         
         // Generate PDF (can take a while)
