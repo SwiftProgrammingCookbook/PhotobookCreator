@@ -14,6 +14,7 @@ import Dispatch
 
 class PhotoCollectionViewController: UIViewController {
 
+    @IBOutlet var actionBarButtonItem: UIBarButtonItem!
     @IBOutlet var tableView: UITableView!
     var activityIndicator = UIActivityIndicatorView(activityIndicatorStyle: .gray)
     
@@ -27,17 +28,20 @@ class PhotoCollectionViewController: UIViewController {
     
     // MARK: - Generate Photo Book
     
-    @IBAction func generateButtonPressed(sender: UIBarButtonItem) {
+    func generateButtonPressed(sender: UIBarButtonItem) {
         
         activityIndicator.startAnimating()
+        configureActionBarButtonItemToCancel()
         
-        generatePhotoBook(with: photos) { [activityIndicator] photobookURL in
+        generatePhotoBook(with: photos) { [weak self, activityIndicator] photobookURL in
             
             activityIndicator.stopAnimating()
             
             let previewController = UIDocumentInteractionController(url: photobookURL)
             previewController.delegate = self
             previewController.presentPreview(animated: true)
+            
+            self?.configureActionBarButtonItemToGenerate()
             
             print("UI to be presented")
         }
@@ -82,6 +86,14 @@ class PhotoCollectionViewController: UIViewController {
         processingQueue.addOperation(generateBookOp)
     }
     
+    // MARK: - Cancellation
+    
+    func cancelButtonPressed(sender: UIBarButtonItem) {
+        processingQueue.cancelAllOperations()
+        configureActionBarButtonItemToGenerate()
+        activityIndicator.stopAnimating()
+    }
+    
     // MARK: - Setup
     
     func setupBarButtonItems() {
@@ -96,6 +108,20 @@ class PhotoCollectionViewController: UIViewController {
         editButon.action = #selector(editPhotos(sender:))
         
         navigationItem.rightBarButtonItems = [editButon, barButtonItem]
+        
+        configureActionBarButtonItemToGenerate()
+    }
+    
+    func configureActionBarButtonItemToGenerate() {
+        actionBarButtonItem.title = "Generate Photo Book"
+        actionBarButtonItem.target = self
+        actionBarButtonItem.action = #selector(generateButtonPressed(sender:))
+    }
+    
+    func configureActionBarButtonItemToCancel() {
+        actionBarButtonItem.title = "Cancel"
+        actionBarButtonItem.target = self
+        actionBarButtonItem.action = #selector(cancelButtonPressed(sender:))
     }
     
     func retrieveSamplePhotos() {
